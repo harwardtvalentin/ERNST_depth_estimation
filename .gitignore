@@ -1,0 +1,25 @@
+# Experiment outputs (large binary + plot files, not for version control)
+experiments/runs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local data
+.claude/
+
+# Thesis / development docs (not part of the code release)
+chapter3_revised.tex
+STATUS.md
