@@ -152,34 +152,43 @@ All constants live in [`missile_fly_by_simulation/constants.py`](missile_fly_by_
 
 ## List of Classes
 
-| File | Class
-|------|-------|
-| domain/missile.py:35 | MissileState |
-| domain/missile.py:122 | Missile |
-| domain/satellite.py:41 | Attitude |
-| domain/satellite.py:197 | SatelliteState |
-| domain/satellite.py:315 | OrbitalElements |
-| domain/satellite.py:550 | CameraSpecification |
-| domain/satellite.py:647 | SatelliteSpecification |
-| domain/satellite.py:701 | Satellite |
-| physics/attitude_dynamics.py:28 | NadirPointingController |
-| physics/orbital_mechanics.py:39 | KeplerianOrbitPropagator |
-| sensing/camera_model.py:26 | PinholeCameraModel |
-| simulation/results.py:32 | Observation |
-| simulation/results.py:59 | DepthEstimate |
-| simulation/results.py:94 | SimulationResults |
-| simulation/scenario.py:40 | SimulationScenario |
-| simulation/simulator.py:55 | Simulator |
-| estimation/iterative_velocity_triangulation.py:49 | IterativeVelocityTriangulator |
-| estimation/kalman_constant_velocity.py:35 | KalmanDepthTracker |
-| estimation/multi_ray_least_squares.py:32 | MultiRayLeastSquaresEstimator |
-| estimation/two_ray_triangulation.py:41 | TwoRayTriangulationEstimator |
-| experiments/batch_runner.py:184 | BatchRunner |
-| experiments/experiment_results.py:30 | RunSummary |
-| experiments/experiment_results.py:109 | ExperimentResults |
-| experiments/experiment_results.py:601 | AngularStudyResults |
-| experiments/scenario_factory.py:69 | ScenarioFactory |
-| visualization/plot_config.py:19 | PlotConfig |
+| File | Class | Description |
+|------|-------|-------------|
+| **Domain** | | |
+| domain/missile.py:35 | MissileState | Immutable snapshot of missile position + velocity at one point in time |
+| domain/missile.py:122 | Missile | Container holding the missile's full history of MissileState snapshots |
+| domain/satellite.py:41 | Attitude | Satellite orientation as 3 orthonormal vectors (right, up, forward) |
+| domain/satellite.py:197 | SatelliteState | Immutable snapshot of satellite position, velocity, and attitude at one point in time |
+| domain/satellite.py:315 | OrbitalElements | The 6 Keplerian parameters that define an orbit's size, shape, and orientation |
+| domain/satellite.py:550 | CameraSpecification | Hardware spec sheet: resolution, FOV, FPS |
+| domain/satellite.py:647 | SatelliteSpecification | Blueprint combining name, camera spec, and orbital elements — everything fixed about a satellite |
+| domain/satellite.py:701 | Satellite | Container holding the satellite's spec + full history of SatelliteState snapshots |
+| **Physics** | | |
+| physics/attitude_dynamics.py:28 | NadirPointingController | Computes satellite attitude to point the camera at a target (or nadir as fallback) |
+| physics/orbital_mechanics.py:39 | KeplerianOrbitPropagator | Computes satellite position/velocity over time using two-body orbital mechanics |
+| **Sensing** | | |
+| sensing/camera_model.py:26 | PinholeCameraModel | Projects 3D world points to 2D pixels, and back-projects pixels into 3D rays |
+| **Simulation** | | |
+| simulation/scenario.py:40 | SimulationScenario | Input config: satellite spec, missile start pos/velocity, duration, noise settings — the "recipe" for one run |
+| simulation/simulator.py:55 | Simulator | Orchestrates all modules step-by-step to produce a full simulation run |
+| simulation/results.py:32 | Observation | One camera frame: pixel hit + satellite state at that moment (raw sensor input) |
+| simulation/results.py:59 | DepthEstimate | One depth result from an estimator: estimated distance, true distance, and error (algorithm output) |
+| simulation/results.py:94 | SimulationResults | Full output bundle: trajectories, all observations, all depth estimates from all methods |
+| **Estimation** | | |
+| estimation/two_ray_triangulation.py:41 | TwoRayTriangulationEstimator | Baseline: triangulates depth from exactly 2 observations separated by Δt |
+| estimation/multi_ray_least_squares.py:32 | MultiRayLeastSquaresEstimator | Fits a 3D point to N observation rays via least-squares — more robust than two-ray |
+| estimation/kalman_constant_velocity.py:35 | KalmanDepthTracker | Tracks depth over time with a 1D Kalman filter using a constant-velocity motion model |
+| estimation/iterative_velocity_triangulation.py:49 | IterativeVelocityTriangulator | Triangulation that iteratively corrects for the missile moving during the observation window |
+| **Experiments** | | |
+| experiments/scenario_factory.py:69 | ScenarioFactory | Builds SimulationScenario objects from intuitive physical params (distance, speed, angle) |
+| experiments/batch_runner.py:184 | BatchRunner | Runs all (distance × speed × angle) combinations in parallel and saves results to disk |
+| experiments/experiment_results.py:30 | RunSummary | Lightweight stats from one run (RMSE per method, num observations, runtime) — no full trajectories |
+| experiments/experiment_results.py:109 | ExperimentResults | All RunSummary objects from a full DSA parameter study, plus selected full results |
+| experiments/experiment_results.py:601 | AngularStudyResults | Like ExperimentResults but for a 2D azimuth × elevation sweep at fixed distance/speed |
+| **Visualization** | | |
+| visualization/plot_config.py:19 | PlotConfig | Central config for figure sizes, font sizes, and colors — change once, applies to all plots |
+
+
 
 ---
 
